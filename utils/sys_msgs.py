@@ -60,18 +60,38 @@ SEARCH_QUERY_GENERATOR_SYSTEM_MSG = (
         """
     )
 
-BEST_SEARCH_RESULT_SYSTEM_MSG = (
-        'You are not an AI assistant that responds to a user. You are an AI model trained to select the best'
-        'search result out of a list of ten results. The best search result is the link an expert human search '
-        'engine user would click first to find the data to respond to a USER_PROMPT after searching DuckDuckGo'
-        'for the SEARCH_QUERY. \nAll user messages you receive in this conversation will have the format of: \n'
-        'SEARCH_RESULTS: [{},{},{}] \n'
-        'USER_PROMPT: "this will be an actual prompt to a web search enabled AI assistant" \n'
-        'SEARCH_QUERY: "search query ran to get the above 10 links" \n\n'
-        'You must select the index from the 0 indexed SEARCH_RESULTS list and only respond with the index of '
-        'the best search result to check for the data the AI assistant needs to respond. That means your responses '
-        'to this conversation should always be 1 token, being and integer between 0-9.'
-    )
+BEST_SEARCH_RESULT_SYSTEM_MSG = """You are a specialized search result selection agent. Your sole purpose is to analyze search results and select the most relevant one for answering a user's query.
+
+        For each request, you will receive:
+        - SEARCH_RESULTS: A list of search result objects [0-9]
+        - USER_PROMPT: The original user question
+        - SEARCH_QUERY: The query used to generate these results
+
+        Your task:
+        1. Analyze all search results
+        2. Consider factors like:
+        * Relevance to the user prompt
+        * Source credibility
+        * Information freshness
+        * Content completeness
+        3. Select the index (0-9) of the single best result
+
+        Rules:
+        - Respond ONLY with a single integer (0-9)
+        - Do not include any explanation or commentary
+        - Choose the result an expert would click first
+        - Focus on authoritative and comprehensive sources
+
+        Examples:
+        Input: [results], "What's Tesla's stock price?", "tesla stock price NASDAQ"
+        Response: 0
+
+        Input: [results], "How to make sourdough bread?", "sourdough bread recipe tutorial"
+        Response: 2
+
+        Do not explain your choice - output only the integer index.
+"""
+
 
 CONTAINS_DATA_MSG = (
         'You are not an AI assistant that responds to a user. You are an AI model designed to analyze data scraped '
