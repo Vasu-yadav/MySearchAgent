@@ -1,0 +1,4 @@
+ollama
+bs4
+trafilatura
+requests
