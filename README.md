@@ -3,7 +3,7 @@
 ## Overview
 This project implements a highly efficient, lightweight search agent powered by small, quantized LLMs to replicate a "Perplexity-like" web search experience. The core strength of this pipeline is its capability to perform accurate internet searches and content retrieval using low-parameter, quantized Large Language Models (LLMs) like Gemma3 (4b-it-fp16).
 
-## Approach and Unique Selling Point (USP)
+## Approach
 Traditional search-integrated LLM applications often depend on large, resource-intensive models (20B parameters or higher). However, this project leverages smaller, quantized models (1B, 3B, 4B, 7B, 8B parameters) capable of running efficiently even on modest hardware setups.
 
 ### Key Advantages:
