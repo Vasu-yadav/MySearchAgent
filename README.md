@@ -38,13 +38,15 @@ ollama pull gemma:4b-it-fp16
 ```bash
 git clone https://github.com/Vasu-yadav/MySearchAgent.git
 cd MySearchAgent
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
 ### Running the Project:
 
 ```bash
-python main.py
+python agent.py
 ```
 
 ## Why This Approach Works

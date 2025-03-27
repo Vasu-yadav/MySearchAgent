@@ -6,11 +6,13 @@ import trafilatura
 
 assistant_convo = [sys_msgs.assistant_msg]
 
+model = 'gemma3:4b'
+
 def search_or_not():
     sys_msg = sys_msgs.INTERNET_SEARCH_CLASSIFIER_SYSTEM_MSG
 
     response = ollama.chat(
-        model='gemma3:4b-it-fp16',
+        model=model,
         messages=[{'role':'system','content':sys_msg}, assistant_convo[-1]]
     )
 
@@ -29,7 +31,7 @@ def query_generator():
     query_msg = f'CREATE A SEARCH QUERY FOR THIS PROMPT: \n {assistant_convo[-1]}'
 
     response = ollama.chat(
-        model='gemma3:4b-it-fp16',
+        model=model,
         messages=[{'role':'system','content':sys_msg}, {'role': 'user', 'content': query_msg}]
     )
 
@@ -49,7 +51,7 @@ def duckduckgo_search(query):
     soup = beautifulsoup.BeautifulSoup(response.text, 'html.parser')
     results = []
     for i, result in enumerate(soup.find_all('div', class_ = 'result'), start=1):
-        if i > 10:
+        if i > 5:
             break
         title = result.find('a', class_='result__a')
         if not title:
@@ -73,7 +75,7 @@ def best_search_results(s_results, query):
     for _ in range(2):
         try:
             response = ollama.chat(
-                model='gemma3:4b-it-fp16',
+                model=model,
                 messages=[{'role':'system','content':sys_msg}, {'role': 'user', 'content': best_msg}]
             )
             print(f'Best Search result Index: {response['message']['content']}')
@@ -85,7 +87,7 @@ def best_search_results(s_results, query):
 def scrape_webpage(url):
     try:
         downloaded = trafilatura.fetch_url(url)
-        return trafilatura.extract(downloaded, include_formatting=True,include_links=True)
+        return trafilatura.extract(downloaded,include_links=True, deduplicate=True)
     except Exception as e:
         return None
     
@@ -94,7 +96,7 @@ def contains_data_needed(search_content, query):
     needed_prompt = f'PAGE_TEXT: {search_content} \nUSER_PROMPT: {assistant_convo[-1]} \nSEARCH_QUERY:{query}'
     
     response = ollama.chat(
-        model='gemma3:4b-it-fp16',
+        model=model,
         messages=[{'role':'system','content':sys_msg}, {'role': 'user', 'content': needed_prompt}]
     )
 
@@ -120,7 +122,6 @@ def ai_search():
 
     while not context_found and len(search_results) > 0:
         best_result = best_search_results(search_results, search_query)
-        print(len(search_results))
         try:
             page_link = search_results[best_result]['link']
         except:
@@ -128,7 +129,7 @@ def ai_search():
             continue
 
         page_text = scrape_webpage(page_link)
-        print(f"PAGE TEXT: {page_text}\n")
+        # print(f"PAGE TEXT: {page_text}\n")
         search_results.pop(best_result)
 
         if page_text and contains_data_needed(search_content=page_text, query=search_query):
@@ -139,7 +140,7 @@ def ai_search():
 
 def stream_assistant_response():
     global assistant_convo
-    response = ollama.chat(model='gemma3:4b-it-fp16', messages=assistant_convo, stream = True)
+    response = ollama.chat(model='gemma3:4b', messages=assistant_convo, stream = True)
     complete_response = ''
     print('Assistant:')
 
@@ -159,6 +160,7 @@ def main():
             break
         if search_or_not():
             context = ai_search()
+            print(f'SEARCH RESULT: {context}')
             assistant_convo = assistant_convo[:-1]
 
             if context:
